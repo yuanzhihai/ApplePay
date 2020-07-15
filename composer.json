@@ -1,0 +1,27 @@
+{
+  "name" : "yzh52521/apple",
+  "description" : "苹果支付 苹果内购",
+  "type" : "project",
+  "keywords" : [
+    "苹果支付",
+    "苹果内购",
+    "支付",
+    "Apple",
+    "ApplePay"
+  ],
+  "license" : "MIT",
+  "authors": [
+    {
+      "name": "yzh52521",
+      "email": "yzh52521@gmail.com"
+    }
+  ],
+  "require" : {
+    "php" : ">=7.1.0"
+  },
+  "autoload" : {
+    "psr-4" : {
+      "yzh52521\\" : "src/"
+    }
+  }
+}
