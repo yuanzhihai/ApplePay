@@ -57,7 +57,7 @@ class ApplePay
      * @param string $receipt 凭证
      * @param string $password 密码
      */
-    public function __construct($receipt, $password = '')
+    public function __construct(string $receipt, string $password = '')
     {
         $this->receipt  = $receipt;
         $this->password = $password;
@@ -68,7 +68,7 @@ class ApplePay
      * @param bool $sendBox 是否使用沙箱环境
      * @return bool
      */
-    private function verify($sendBox = false): bool
+    private function verify(bool $sendBox = false): bool
     {
         if (strlen($this->receipt) < 10) {
             $this->error = '凭证数据长度太短，请确定数据正确！';
@@ -92,7 +92,7 @@ class ApplePay
      * @param bool $verifySandbox 是否验证沙盒环境
      * @return bool
      */
-    public function verifyReceipt($verifySandbox = false): bool
+    public function verifyReceipt(bool $verifySandbox = false): bool
     {
         // 验证正式
         if ($result = $this->verify(false)) {
@@ -148,8 +148,7 @@ class ApplePay
      */
     public function getTransactionId()
     {
-        $inApps = $this->returnData['receipt']['in_app'];
-        return end($inApps)['transaction_id'];
+        return $this->returnData['receipt']['in_app'][0]['transaction_id'];
     }
 
     /**
@@ -162,7 +161,7 @@ class ApplePay
     {
         if ($this->returnData) {
             if ($this->returnData['status'] === 0) {
-                if ($productId === end($this->returnData['receipt']['in_app'])['product_id']) {
+                if ($productId === $this->returnData['receipt']['in_app'][0]['product_id']) {
                     return $callback($this->getTransactionId(), $this->returnData);
                 }
                 $this->error = '非法的苹果商店product_id，这个凭证有可能是伪造的！';
