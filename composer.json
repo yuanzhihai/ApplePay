@@ -1,11 +1,12 @@
 {
   "name" : "yzh52521/apple",
-  "description" : "苹果支付 苹果内购",
+  "description" : "苹果支付 苹果内购 ios",
   "type" : "project",
   "keywords" : [
     "苹果支付",
     "苹果内购",
     "支付",
+    "ios",
     "Apple",
     "ApplePay"
   ],
