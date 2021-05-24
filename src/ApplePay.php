@@ -89,17 +89,12 @@ class ApplePay
 
     /**
      * 验证凭证
-     * @param bool $verifySandbox 是否验证沙盒环境
+     * @param bool $sandbox 是否沙盒环境
      * @return bool
      */
-    public function verifyReceipt(bool $verifySandbox = false): bool
+    public function verifyReceipt(bool $sandbox = false): bool
     {
-        // 验证正式
-        if ($result = $this->verify(false)) {
-            return $result;
-        }
-        // 验证沙盒
-        if ($verifySandbox && $result = $this->verify(true)) {
+        if ($result = $this->verify($sandbox)) {
             return $result;
         }
         return false;
