@@ -68,13 +68,13 @@ class ApplePay
      * @param bool $sendBox 是否使用沙箱环境
      * @return bool
      */
-    private function verify(bool $sendBox = false): bool
+    private function verify(bool $sandbox = false): bool
     {
         if (strlen($this->receipt) < 10) {
             $this->error = '凭证数据长度太短，请确定数据正确！';
             return false;
         }
-        $return = $this->postData($this->receipt, $this->password, $sendBox ? $this->testUrl : $this->url);
+        $return = $this->postData($this->receipt, $this->password, $sandbox ? $this->testUrl : $this->url);
         if ($return) {
             $this->returnData = json_decode($return, true);
             if ($this->returnData['status'] !== 0) {
@@ -183,9 +183,9 @@ class ApplePay
      * @param $receipt_data
      * @param string $password
      * @param $url
-     * @return mixed
+     * @return bool|string
      */
-    private function postData($receipt_data, $password, $url)
+    private function postData($receipt_data, string $password, $url)
     {
         $postData = ['receipt-data' => $receipt_data, 'password' => $password];
         $ch       = curl_init($url);
