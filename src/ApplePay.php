@@ -53,11 +53,11 @@ class ApplePay
     private $returnData = [];
 
     /**
-     * ApplePay constructor.
+     * Apple Pay constructor.
      * @param string $receipt 凭证
      * @param string $password 密码
      */
-    public function __construct(string $receipt, string $password = '')
+    public function __construct(string $receipt,string $password = '')
     {
         $this->receipt  = $receipt;
         $this->password = $password;
@@ -66,19 +66,20 @@ class ApplePay
     /**
      * 验证凭证
      * @param bool $sendBox 是否使用沙箱环境
-     * @return bool
+     * @param bool $sandbox
+     * @return array|false|mixed
      */
-    private function verify(bool $sandbox = false): bool
+    private function verify(bool $sandbox = false)
     {
-        if (strlen($this->receipt) < 10) {
+        if (strlen( $this->receipt ) < 10) {
             $this->error = '凭证数据长度太短，请确定数据正确！';
             return false;
         }
-        $return = $this->postData($this->receipt, $this->password, $sandbox ? $this->testUrl : $this->url);
+        $return = $this->postData( $this->receipt,$this->password,$sandbox ? $this->testUrl : $this->url );
         if ($return) {
-            $this->returnData = json_decode($return, true);
+            $this->returnData = json_decode( $return,true );
             if ($this->returnData['status'] !== 0) {
-                $this->setStatusError($this->returnData['status']);
+                $this->setStatusError( $this->returnData['status'] );
                 return false;
             }
             return $this->returnData;
@@ -90,11 +91,11 @@ class ApplePay
     /**
      * 验证凭证
      * @param bool $sandbox 是否沙盒环境
-     * @return bool
+     * @return array|false|mixed
      */
-    public function verifyReceipt(bool $sandbox = false): bool
+    public function verifyReceipt(bool $sandbox = false)
     {
-        if ($result = $this->verify($sandbox)) {
+        if ($result = $this->verify( $sandbox )) {
             return $result;
         }
         return false;
@@ -106,7 +107,7 @@ class ApplePay
      */
     private function setStatusError($status): void
     {
-        switch ((int)$status) {
+        switch ( (int)$status ) {
             case 21000:
                 $error = 'AppleStore不能读取你提供的JSON对象';
                 break;
@@ -139,28 +140,56 @@ class ApplePay
 
     /**
      * 返回交易id
-     * @return mixed
+     * @return mixed|string
      */
     public function getTransactionId()
     {
-        return $this->returnData['receipt']['in_app'][0]['transaction_id'];
+        $transaction_id = $this->returnData['receipt']['in_app'][0]['transaction_id'] ?? '';
+        if ($transaction_id == '') {
+            $transaction_id = $this->returnData['receipt']['transaction_id'] ?? '';
+        }
+        return $transaction_id;
+    }
+
+    /**
+     * 商店product_id
+     * @return mixed|string
+     */
+    public function getProductId()
+    {
+        return $this->returnData['receipt']['in_app'][0]['product_id'] ?? '';
+    }
+
+    /**
+     * 返回 apple_bundle_id
+     * @return string
+     */
+    public function getBundleId(): string
+    {
+        return isset( $this->returnData['receipt']['bid'] ) ? trim( $this->returnData['receipt']['bid'] ) : '';
     }
 
     /**
      * 查询数据是否有效
      * @param $productId
+     * @param $bundleId
      * @param \Closure $callback
      * @return bool
      */
-    public function query($productId, \Closure $callback): ?bool
+    public function query($productId,$bundleId,\Closure $callback): ?bool
     {
         if ($this->returnData) {
             if ($this->returnData['status'] === 0) {
-                if ($productId === $this->returnData['receipt']['in_app'][0]['product_id']) {
-                    return $callback($this->getTransactionId(), $this->returnData);
+                $compare = strcmp( $bundleId,$this->getBundleId() );
+                if ($compare !== 0) {
+                    $this->error = '非法的苹果bundle_id，这个凭证有可能是伪造的！';
+                    return false;
                 }
-                $this->error = '非法的苹果商店product_id，这个凭证有可能是伪造的！';
-                return false;
+                if ($productId != $this->getProductId()) {
+                    $this->error = '非法的苹果商店product_id，这个凭证有可能是伪造的！';
+                    return false;
+                }
+                return $callback( $this->getTransactionId(),$this->returnData );
             }
             $this->error = '苹果服务器返回订单状态不正确!';
             return false;
@@ -185,15 +214,15 @@ class ApplePay
      * @param $url
      * @return bool|string
      */
-    private function postData($receipt_data, string $password, $url)
+    private function postData($receipt_data,string $password,$url)
     {
-        $postData = ['receipt-data' => $receipt_data, 'password' => $password];
-        $ch       = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
-        $result = curl_exec($ch);
-        curl_close($ch);
+        $postData = ['receipt-data' => $receipt_data,'password' => $password];
+        $ch       = curl_init( $url );
+        curl_setopt( $ch,CURLOPT_RETURNTRANSFER,1 );
+        curl_setopt( $ch,CURLOPT_POST,1 );
+        curl_setopt( $ch,CURLOPT_POSTFIELDS,json_encode( $postData ) );
+        $result = curl_exec( $ch );
+        curl_close( $ch );
         return $result;
     }
 }

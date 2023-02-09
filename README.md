@@ -14,7 +14,7 @@ $ php composer.phar require yzh52521/apple
 
     $applePay = new ApplePay($_POST['receipt'], '');
     if ($applePay->verifyReceipt()) {
-        $result = $applePay->query($storeProductId, function ($tradeNo, $returnData) use ($order) {
+        $result = $applePay->query($storeProductId,$bundleId, function ($tradeNo, $returnData) use ($order) {
             // 检查此交易号是否被使用
             if (!$order->checkTradeNoIsUsed($tradeNo)) {
                 // 更新本地订单状态等...
