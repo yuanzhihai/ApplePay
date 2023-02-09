@@ -144,11 +144,7 @@ class ApplePay
      */
     public function getTransactionId()
     {
-        $transaction_id = $this->returnData['receipt']['in_app'][0]['transaction_id'] ?? '';
-        if ($transaction_id == '') {
-            $transaction_id = $this->returnData['receipt']['transaction_id'] ?? '';
-        }
-        return $transaction_id;
+        return $this->returnData['receipt']['in_app'][0]['transaction_id'];
     }
 
     /**
@@ -157,7 +153,7 @@ class ApplePay
      */
     public function getProductId()
     {
-        return $this->returnData['receipt']['in_app'][0]['product_id'] ?? '';
+        return $this->returnData['receipt']['in_app'][0]['product_id'];
     }
 
     /**
@@ -166,7 +162,7 @@ class ApplePay
      */
     public function getBundleId(): string
     {
-        return isset( $this->returnData['receipt']['bid'] ) ? trim( $this->returnData['receipt']['bid'] ) : '';
+        return trim( $this->returnData['receipt']['bundle_id'] );
     }
 
     /**
